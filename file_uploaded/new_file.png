@@ -1,0 +1,186 @@
+# File Name : cw5.sh
+# Developer :Rut Patel
+# Date : 14-11-2020
+# Purpose : CW5 : Linux - Shell Scripting
+
+
+while true
+do
+	clear
+	echo -e	"\tDurham college employee list"
+	echo "A. Add new employee"
+	echo "B. Employee List"
+	echo "C. Search for an employee"
+	echo "D. Display number of employees for each Dept"
+	echo "E. Exit from the Menu"
+	echo ""
+	read -p "Select your choice from the menu: " userChoice
+	case $userChoice in
+	  [Aa])	
+			echo ""
+			echo "Enter the details for a new employee."
+			echo ""
+			#validating the users phone number format:999-999-9999
+			while true
+			do
+				read -p "Phone Number  : " phoneNumber
+				echo $phoneNumber | grep -qE '^([0-9]{3}[-]?){2}[0-9]{4}$'
+				if ([ $? -eq 0 ]); then
+					echo "$phoneNumber is a valid Number.Your phone number is added to the system."
+					break
+				else
+				 echo "$phoneNumber is Invalid Number, Expected format ###-###-#### - Please try again."
+				fi
+			done
+
+			#validating users last Name.
+			while true
+			do
+				read -p "Last Name    : " lastName
+				echo $lastName | grep -qE '^[a-zA-Z]*$'
+				if ( [ $? -eq 0 ]); then
+					if [ $(echo $lastName | wc -c) -gt 15 ]; then
+						echo "$lastName is valid name but Last name cannot be more than 15 Characters"
+					else
+						echo "$lastName is a validname.Your lastname is added to the sytem."
+						break
+					fi
+				else
+				echo "$lastName is Iinvalid Name -Please try again."
+				fi
+			done
+
+			#validating user's First Name
+			while true
+			do
+		                read -p "First Name   : " firstName
+				echo $firstName | grep -qE '^[a-zA-Z]*$'
+				if ( [ $? -eq 0 ]); then
+					if [ $(echo $firstName | wc -c) -gt 20 ]; then
+						echo "$firstName is a valid name but First Name cannot be more than 20 Characters"
+					else
+						echo "$firstName is a valid name. Firstname is added to the system."
+						break
+					fi
+				else
+				echo "$firstName is invalid name - Please try again."
+				fi
+			done
+
+			#validating user's Middle Name
+			while true
+			do
+				read -p "Middle Name  : " middleName
+				echo $middleName | grep -qE '^[a-zA-Z]*$'
+				if ( [ $? -eq 0 ]); then
+					if [ $(echo $middleName | wc -c) -gt 10 ]; then
+						echo "$middleName is valid name but Middle Name cannot be more than 10 Characters"
+					else
+						echo "$middleName is a valid name. Middlename is added to the system."
+						break
+					fi
+				else
+				echo "$middleName is Invalid name - Please try again."
+				fi
+			done
+
+			#validating user's Dept. Number
+			while true
+			do
+				read -p "Dept No     : " deptNo
+				echo $deptNo | grep -qE '^([0-9]{4})$'
+				if ([ $? -eq 0 ]); then
+					echo "$deptNo is a valid Number.Dept. No is added to the system."
+					break
+				else
+					echo "$deptNo is a invalid Number - Please try again."
+				fi
+			done
+
+			#validationg job title
+			while true
+			do
+				read -p "Job Title    : " jobTitle
+				echo $jobTitle | grep -qE '^[a-zA-Z]*$'
+				if ( [ $? -eq 0 ]); then
+					if [ $(echo $jobTitle | wc -c) -gt 15 ]; then
+						echo "$jobTitle is a valid name but Job Title cannot be more than 15 Characters"
+					else
+						echo "$jobTitle is a valid name.Job title is added to the system."
+						break
+					fi
+				else
+				echo "$jobTitle is Invalid name - Please try again."
+				fi
+			done
+			#validating user's entered date
+			while true
+			do
+				read -p "Date Hired(dd-mm-yyyy)   : " dateHired
+				echo $dateHired | grep -qE '^([0-9]{2}[-]?){2}[0-9]{4}$'
+				if ([ $? -eq 0 ]); then
+					echo "$dateHired is a valid Number.Hired-date is added to the system."
+					break
+				else
+				 echo "$dateHired is Invalid Number - Please try again."
+				fi
+			done
+
+			record=$phoneNumber:$lastName:$firstName:$middleName:$deptNo:$jobTitle:$dateHired;
+			echo -e $record >> phone_list.txt
+			echo -e $record
+			echo ""
+			echo "Your record has been successfully added!"
+		    ;;
+
+	    [Bb])
+			clear
+			cat phone_list.txt | awk 'BEGIN {FS=":" ; printf "%-15s %-10s %-10s %-10s %-15s %-10s %-10s\n"  \
+						"--------------------------------------------------------------------------------------\n", \
+							"Phone Number", "Last", "First", "Middle", "Dept No", "Job Title", "Date Hired"} \
+							{printf "%-15s %-10s %-10s %-10s %-10s %-15s %-10s\n", $1, $2, $3, $4, $5, $6, $7} \
+							END {print "--------------------------------------------------------------------------------------"}' 
+
+            ;;
+	    [Cc])
+			read -p "Please Enter the Phone Number(Format ###-###-####) : " phoneNo
+			x==$(grep -i "^$phoneNo" phone_list.txt)
+		        if ([ "$x" != "" ])
+			then
+			   grep -i "^$phoneNo" phone_list.txt > listc.txt
+			   # or can print formatted output as in (b) using awk command
+			   awk 'BEGIN {FS=":" ;
+			  printf "%-15s %-10s %-10s %-10s %-10s %-15s %-10s\n------------------------------------------------------------------------------------------\n", \
+			  "Phone Number", "Last", "First", "Middle", "Dept No", "Job Title", "Date Hired"} \
+			  {printf "%-15s %-10s %-10s %-10s %-10s %-15s %-10s\n", $1, $2, $3, $4, $5, $6, $7} \
+			  END {print "------------------------------------------------------------------------------------------"}' listc.txt
+
+		    else
+			   echo $phoneNo "Not Found"
+			fi
+			;;
+
+	    [Dd])
+			cat phone_list.txt | cut -d ':' -f5 | uniq -c > phone_list_count.txt
+			cat phone_list_count.txt | awk 'BEGIN {FS=":" ; printf "%-8s %-8s\n"  \
+			        	"----------------------------------\n", \
+		                " #ofEmp", "Dept#"} \
+		                {printf "%-8s %-8s\n", $1, $2} \
+                                END {print "--------------------------------\n"}'
+			;;
+	       [Ee])
+
+			clear
+			echo ""
+			echo "-------------------------------------------------"
+		    echo "Hope you liked Linux shell scripting........"
+		    echo "-------------------------------------------------"
+			echo ""
+			exit 0
+			;;
+		*)
+			echo "Invalid selection. Enter A, B, C, D, or E only."	
+
+	esac
+        read -p "Press any key to continue : " dummy
+done
